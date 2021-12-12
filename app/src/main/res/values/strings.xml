@@ -28,4 +28,9 @@
     <string name="issatso_description">Institut supérieur des sciences appliquées et de technologie de Sousse</string>
     <string name="supcom_name">SUP\'COM</string>
     <string name="supcom_description">École supérieure des communications de Tunis</string>
+
+    <string name="reload_menu_action">Reload</string>
+    <string name="delete_all_menu_action">Delete All</string>
+    <string name="delete_all_data_message">Deleting all data…</string>
+    <string name="reload_data_message">Reloading data…</string>
 </resources>

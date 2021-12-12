@@ -3,19 +3,28 @@ package tn.khammami.app;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private List<School> mSchools;
+    private List<School> mSchools = new ArrayList<>();
     private SchoolListAdapter mSchoolListAdapter;
+
+    private SchoolViewModel mSchoolViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,34 +53,34 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        loadSchoolsData();
-    }
-
-    private void loadSchoolsData() {
-        new FetchSchoolsTask().execute();
-    }
-
-    private class FetchSchoolsTask extends AsyncTask<Void,Void,List<School>> {
-        @Override
-        protected List<School> doInBackground(Void... voids) {
-            URL schoolsRequestUrl = NetworkUtils.buildUrl();
-
-            try {
-                String jsonWeatherResponse = NetworkUtils
-                        .getResponseFromHttpUrl(schoolsRequestUrl);
-
-                return SchoolListJsonUtils.getSchoolListFromJson(jsonWeatherResponse);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
+        mSchoolViewModel = new ViewModelProvider(this).get(SchoolViewModel.class);
+        mSchoolViewModel.getAllSchools().observe(this, new Observer<List<School>>() {
+            @Override
+            public void onChanged(List<School> schools) {
+                mSchools = schools;
+                mSchoolListAdapter.setSchools(schools);
             }
-        }
+        });
+    }
 
-        @Override
-        protected void onPostExecute(List<School> schools) {
-            mSchools = schools;
-            mSchoolListAdapter.setSchools(schools);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.delete_all) {
+            Toast.makeText(this, R.string.delete_all_data_message, Toast.LENGTH_LONG).show();
+            mSchoolViewModel.deleteAll();
+            return true;
+        } else if (id == R.id.reload){
+            Toast.makeText(this, R.string.reload_data_message, Toast.LENGTH_LONG).show();
+            mSchoolViewModel.reloadData();
         }
+        return super.onOptionsItemSelected(item);
     }
 }
